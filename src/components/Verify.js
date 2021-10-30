@@ -14,7 +14,7 @@ import Alert from "./Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import Cookies from "js-cookie";
-import { verifyCodeAsync } from "../actions/userAction";
+import { verifyCodeAsync, resendCodeAsync } from "../actions/userAction";
 
 const Verify = () => {
   const dispatch = useDispatch();
@@ -31,9 +31,12 @@ const Verify = () => {
   }));
 
   useEffect(() => {
-    if (user.error) history.push("/");
+    if (user.resendEmailTokenCount === 3) {
+      setTimeout(() => history.push("/"), 2000);
+    }
+    user.error || user.msg ? setOpen(true) : setOpen(false);
+       
     setSuccess(user.success);
-    setOpen(user.success);
   }, [user]);
 
   const handleChange = (e) => {
@@ -48,15 +51,27 @@ const Verify = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // history.push("/verify");
     let payload = {
       email: user.email,
-      token: user.token,
-      verificationCode: otp,
+      token: user.token.toString(),
+      verificationCode: otp.toString(),
     };
+    setOtp("");
+    setBtnActive(false);
     dispatch(verifyCodeAsync(payload));
   };
 
+  const resend = () => {
+    let payload = {
+      email: user.email,
+      token: user.token.toString()
+    };
+    setOtp("");
+    setBtnActive(false);
+    dispatch(resendCodeAsync(payload));
+  }
+
+  console.log(user);
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -116,10 +131,16 @@ const Verify = () => {
 
           <Grid container justifyContent="center">
             <Grid item sx={{ mt: 3, mr: 2 }}>
-              <Button variant="text" onClick={() => history.push('/')} color="secondary">Go back</Button>
+              <Button
+                variant="text"
+                onClick={() => history.push("/")}
+                color="secondary"
+              >
+                Go back
+              </Button>
             </Grid>
             <Grid item sx={{ mt: 3, ml: 2 }}>
-              <Button variant="text">Resend OTP</Button>
+              <Button variant="text" onClick={resend}>Resend OTP</Button>
             </Grid>
           </Grid>
         </Box>

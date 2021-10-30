@@ -18,7 +18,7 @@ const AlertComponent = ({ open, setOpen, type, errorMsg }) => {
         severity={type}
         sx={{ width: "100%" }}
       >
-        <span>{errorMsg ? errorMsg : "Network error!"}</span>
+        <span>{errorMsg ? errorMsg : ""}</span>
       </Alert>
     </Snackbar>
   );

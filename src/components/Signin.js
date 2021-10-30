@@ -32,7 +32,8 @@ const SignIn = () => {
   }));
 
   useEffect(() => {
-    user.error ? setOpen(user.error) : setOpen(false);
+    user.error || user.msg ? setOpen(true) : setOpen(false);
+    
   }, [user]);
 
   const handleChange = (e) => {
