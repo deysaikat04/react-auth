@@ -19,7 +19,11 @@ import { verifyEmailAsync } from "../actions/userAction";
 const SignIn = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-
+  
+  const { user } = useSelector((state) => ({
+    user: state.user,
+  }));
+  
   const [email, setEmail] = useState("example@gmail.co");
   const [formError, setFormError] = useState({ email: false });
   const [formErrorMsg, setFormErrorMsg] = useState({ email: "" });
@@ -27,9 +31,6 @@ const SignIn = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { user } = useSelector((state) => ({
-    user: state.user,
-  }));
 
   useEffect(() => {
     user.error || user.msg ? setOpen(true) : setOpen(false);

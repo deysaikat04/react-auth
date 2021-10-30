@@ -3,6 +3,8 @@ import {
   SET_EMAIL,
   SET_OTP_VERFIED,
   RESEND_OTP,
+  CHECK_REFERRAL_CODE,
+  SIGN_UP,
   SET_ERROR,
 } from "./action-types";
 
@@ -55,7 +57,42 @@ export const resendCodeAsync = (data) => {
         dispatch(verifyResendCode(res.data));
       })
       .catch((error) => {
-        console.log(error, data);
+        if (error.response) {
+          dispatch(setError(error.response.data.message));
+        } else {
+          dispatch(setError(error.message));
+        }
+      });
+  };
+};
+
+export const checkReferralCodeAsync = (data) => {  
+  let url = `${process.env.REACT_APP_BASE_URL}/users/referral/${data}`;  
+  return (dispatch) => {
+    axios
+      .get(url)
+      .then((res) => {        
+        dispatch(checkReferralCode(res.data));
+      })
+      .catch((error) => {
+        if (error.response) {
+          dispatch(setError(error.response.data.message));
+        } else {
+          dispatch(setError(error.message));
+        }
+      });
+  };
+};
+
+export const userSignUpAsync = (data) => {  
+  let url = `${process.env.REACT_APP_BASE_URL}/users`;  
+  return (dispatch) => {
+    axios
+      .post(url, data)
+      .then((res) => {        
+        dispatch(signUp(res.data));
+      })
+      .catch((error) => {
         if (error.response) {
           dispatch(setError(error.response.data.message));
         } else {
@@ -83,6 +120,20 @@ export const verifyCode = (data) => {
 export const verifyResendCode = (data) => {
   return {
     type: RESEND_OTP,
+    data
+  };
+};
+
+export const checkReferralCode = (data) => {
+  return {
+    type: CHECK_REFERRAL_CODE,
+    data
+  };
+};
+
+export const signUp = (data) => {
+  return {
+    type: SIGN_UP,
     data
   };
 };

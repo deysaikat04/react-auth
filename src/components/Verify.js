@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,8 +12,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Alert from "./Alert";
 import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
-import Cookies from "js-cookie";
+import { otpMessage } from "../actions/constants";
 import { verifyCodeAsync, resendCodeAsync } from "../actions/userAction";
 
 const Verify = () => {
@@ -35,7 +34,14 @@ const Verify = () => {
       setTimeout(() => history.push("/"), 2000);
     }
     user.error || user.msg ? setOpen(true) : setOpen(false);
-       
+
+    if (user.success && user.isLogin && user.isOtpVerified && user.msg === otpMessage.SUCCESS) {
+      history.push("/profile");
+    }
+    if (user.success && !user.isLogin && user.isOtpVerified && user.msg === otpMessage.SUCCESS) {
+      history.push("/signup");
+    }
+
     setSuccess(user.success);
   }, [user]);
 
@@ -64,14 +70,13 @@ const Verify = () => {
   const resend = () => {
     let payload = {
       email: user.email,
-      token: user.token.toString()
+      token: user.token.toString(),
     };
     setOtp("");
     setBtnActive(false);
     dispatch(resendCodeAsync(payload));
-  }
+  };
 
-  console.log(user);
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -140,7 +145,9 @@ const Verify = () => {
               </Button>
             </Grid>
             <Grid item sx={{ mt: 3, ml: 2 }}>
-              <Button variant="text" onClick={resend}>Resend OTP</Button>
+              <Button variant="text" onClick={resend}>
+                Resend OTP
+              </Button>
             </Grid>
           </Grid>
         </Box>

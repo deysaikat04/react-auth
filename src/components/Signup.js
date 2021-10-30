@@ -1,4 +1,5 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -11,13 +12,102 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Alert from "./Alert";
+import { checkReferralCodeAsync, userSignUpAsync } from "../actions/userAction";
+import { signUpConstants } from "../actions/constants";
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);    
+  const dispatch = useDispatch();
+
+  const { user } = useSelector((state) => ({
+    user: state.user,
+  }));
+
+  const [name, setName] = useState("example");
+  const [referral, setReferral] = useState("");
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+
+  const [formError, setFormError] = useState({ name: false });
+  const [formErrorMsg, setFormErrorMsg] = useState({ name: "" });
+
+  const [btnEnabled, setBtnEnabled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    user.error || user.msg ? setOpen(true) : setOpen(false);
+    isValidate();
+  }, [user]);
+
+  const handleReferralCodeChange = (e) => {
+    const { value } = e.target;
+
+    value === "" ? setBtnEnabled(true) : setBtnEnabled(false);
+
+    let uppercaseChars = value.replace(/[^A-Z0-9]/g, function (match) {
+      if (match != undefined) {
+        return match.toUpperCase();
+      }
+    });
+    setReferral(uppercaseChars);
+    if (uppercaseChars.length === 6) {
+      dispatch(checkReferralCodeAsync(uppercaseChars));
+    }
   };
 
+  const isValidate = (id, value) => {
+    if (
+      id === "firstName" &&
+      value !== "" &&
+      privacyChecked &&
+      (referral === "" || user.isValidReferralCode)
+    ) {
+      setBtnEnabled(true);
+    } else if (
+      id === "privacyChecked" &&
+      value &&
+      name !== "" &&
+      (referral === "" || user.isValidReferralCode)
+    ) {
+      setBtnEnabled(true);
+    } else if (user.isValidReferralCode && privacyChecked && name !== "") {
+      setBtnEnabled(true);
+    } else {
+      setBtnEnabled(false);
+    }
+  };
+
+  const handleNameChange = (e) => {
+    const { id, value } = e.target;
+    setName(value);
+    if (value === "") {
+      setFormError({ ...formError, name: true });
+      setFormErrorMsg({ ...formErrorMsg, name: "This field is required" });
+    } else {
+      setFormError({ ...formError, name: false });
+      setFormErrorMsg({ ...formErrorMsg, name: "" });
+    }
+    isValidate(id, value);
+  };
+
+  const handlePrivacyChange = (e) => {
+    const { id, checked } = e.target;
+    setPrivacyChecked(checked);
+    isValidate(id, checked);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const payload = {
+      firstName: name,
+      email: user.email,
+      referredCodeKey: referral,
+      agreeToPrivacyPolicy: privacyChecked,
+      token: user.token,
+      source: signUpConstants.APPSOURCE,
+    };
+    dispatch(userSignUpAsync(payload));
+  };
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -46,19 +136,25 @@ export default function SignUp() {
                 label="Email"
                 name="email"
                 autoComplete="email"
-                value="example@gmail.com"
+                value={user.email}
                 disabled
               />
             </Grid>
             <Grid item xs={12} sm={12}>
               <TextField
                 autoComplete="fname"
-                name="firstName"
+                name="name"
                 required
                 fullWidth
                 id="firstName"
                 label="First Name"
+                value={name}
+                onChange={handleNameChange}
                 autoFocus
+                {...(formError.name && {
+                  error: true,
+                  helperText: formErrorMsg.name,
+                })}
               />
             </Grid>
             <Grid item xs={12}>
@@ -68,11 +164,24 @@ export default function SignUp() {
                 label="Referral Code"
                 id="referredCodeKey"
                 autoComplete="referred-code"
+                inputProps={{
+                  maxLength: 6,
+                }}
+                value={referral}
+                onChange={handleReferralCodeChange}
+                helperText="Referral code is optional. Please enter a valid code or leave it blank."
               />
             </Grid>
             <Grid item xs={12}>
               <FormControlLabel
-                control={<Checkbox value="allowExtraEmails" color="primary" />}
+                control={
+                  <Checkbox
+                    id="privacyChecked"
+                    checked={privacyChecked}
+                    onChange={handlePrivacyChange}
+                    color="primary"
+                  />
+                }
                 label="I Agree to Privacy Policy."
               />
             </Grid>
@@ -83,6 +192,7 @@ export default function SignUp() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             color="primary"
+            disabled={!btnEnabled}
           >
             Sign Up
           </Button>
@@ -95,6 +205,13 @@ export default function SignUp() {
           </Grid>
         </Box>
       </Box>
+      {open && (
+        <Alert
+          setOpen={setOpen}
+          type={user.success ? "success" : "error"}
+          errorMsg={user.msg ? user.msg : "Network error!"}
+        />
+      )}
     </Container>
   );
 }

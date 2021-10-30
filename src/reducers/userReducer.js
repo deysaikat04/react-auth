@@ -1,4 +1,4 @@
-import { SET_EMAIL, SET_OTP_VERFIED, RESEND_OTP, SET_ERROR } from "../actions/action-types";
+import { SET_EMAIL, SET_OTP_VERFIED, RESEND_OTP, CHECK_REFERRAL_CODE, SIGN_UP, SET_ERROR } from "../actions/action-types";
 
 const initState = {
   isLogin: false,
@@ -6,7 +6,10 @@ const initState = {
   email: "",
   success: false,
   error: false,
+  isOtpVerified: false,
   resendEmailTokenCount: 0,
+  isValidReferralCode: false,
+  user:{},
   msg: "",
 };
 
@@ -30,21 +33,39 @@ export default function userReducer(state = initState, action) {
         success: action.data.success,
         msg: action.data.message,
         resendEmailTokenCount: action.data.resendEmailTokenCount,
+        isOtpVerified: true,
         error: false,
       };
     case RESEND_OTP:
-      console.log(action.data);
       return {
         ...state,
         success: action.data.success,
         msg: action.data.message,
         resendEmailTokenCount: action.data.results ? action.data.results.resendEmailTokenCount : 0,
+        isOtpVerified: true,
+        error: false,
+      };
+    case CHECK_REFERRAL_CODE:
+      return {
+        ...state,
+        success: action.data.success,
+        isValidReferralCode: action.data.success,
+        msg: action.data.message,
+        error: false,
+      };
+    case SIGN_UP:
+      return {
+        ...state,
+        success: action.data.success,
+        user: action.results.user,
+        msg: action.data.message,
         error: false,
       };
     case SET_ERROR:
       return {
         ...state,
         msg: action.data.message,
+        isOtpVerified: false,
         error: true,
       };
 
