@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Avatar from "@mui/material/Avatar";
 import { useSelector, useDispatch } from "react-redux";
 import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import GlobalStyles from "@mui/material/GlobalStyles";
-import Cookies from "js-cookie";
 import { userLogOutAsync } from "../actions/userAction";
 
 const Navbar = () => {
@@ -21,10 +20,12 @@ const Navbar = () => {
   const [userToken, setUserToken] = useState("");
 
   useEffect(() => {
-    let length = Object.keys(user.profile).length;
-    if (length) {
-      setUserId(user.profile._id);
-      setUserToken(user.profile.token);
+    if (user.profile) {
+      let length = Object.keys(user.profile).length;
+      if (length) {
+        setUserId(user.profile._id);
+        setUserToken(user.profile.token);
+      }
     }
   }, [user]);
 
@@ -34,8 +35,6 @@ const Navbar = () => {
       userToken,
     };
     dispatch(userLogOutAsync(payload));
-
-    Cookies.remove("token", { path: "/" });
     window.location.pathname = "/";
   };
 
@@ -55,10 +54,14 @@ const Navbar = () => {
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
             example.com
           </Typography>
-          <Avatar alt="Remy Sharp" src={user.profile.avatar} />
-          <Typography sx={{ my: 1, mx: 1.5 }}>
-          {user.profile.firstName}
-          </Typography>
+          {user.profile && (
+            <Avatar alt="Remy Sharp" src={user.profile.avatar} />
+          )}
+          {user.profile && (
+            <Typography sx={{ my: 1, mx: 1.5 }}>
+              {user.profile.firstName}
+            </Typography>
+          )}
           <Button
             href="#"
             color="secondary"

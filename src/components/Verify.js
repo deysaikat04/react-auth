@@ -30,7 +30,6 @@ const Verify = () => {
   }));
 
   useEffect(() => {
-    // if(!user.hasEmail) history.push("/");
     if (user.resendEmailTokenCount > 3 || user.wrongEmailTokenCount === 3) {
       setTimeout(() => history.push("/"), 4000);
     }

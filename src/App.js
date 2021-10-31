@@ -23,6 +23,7 @@ const theme = createTheme({
 });
 
 const PrivateRoute = ({ component: Component, authed, ...rest }) => {
+  console.log("Pr", authed);
   return (
     <Route
       {...rest}
@@ -37,10 +38,12 @@ const PrivateRoute = ({ component: Component, authed, ...rest }) => {
   );
 };
 
-function App() {
+const App = (props) => {
   const { user } = useSelector((state) => ({
     user: state.user,
   }));
+
+  const authed = user.authed;
 
   return (
     <ThemeProvider theme={theme}>
@@ -52,18 +55,28 @@ function App() {
             path="/verify"
             render={(props) => <Verify {...props} />}
           />
-          <PrivateRoute
+          <Route
             exact
             path="/signup"
-            authed={user.isOtpVerified}
-            component={Signup}
+            render={(props) => <Signup {...props} />}
           />
+          {/* <Route
+            exact
+            path="/profile"
+            render={(props) => <Profile {...props} authed={user.authed} />}
+          /> */}
+          {/* <Route
+            exact
+            path="/profile"
+            render={(props) => <Profile {...props} />}
+          />          */}
           <PrivateRoute
             exact
             path="/profile"
-            authed={user.authed}
+            authed={authed}
             component={Profile}
           />
+
           <Route
             exact
             path="*"
@@ -77,6 +90,6 @@ function App() {
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

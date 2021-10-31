@@ -4,6 +4,7 @@ import {
   SET_OTP_VERFIED,
   RESEND_OTP,
   CHECK_REFERRAL_CODE,
+  RESET_REFERRAL_CODE,
   SIGN_UP,
   LOG_OUT,
   RESET,
@@ -15,22 +16,17 @@ export const verifyEmailAsync = (data) => {
   return (dispatch) => {
     axios
       .post(url, data)
-      .then((res) => {
-        let d = new Date();
-        d.setTime(d.getTime() + 2 * 24 * 60 * 60 * 1000);
-        document.cookie =
-          "token=" +
-          res.data.results.token +
-          ";expires=" +
-          d.toUTCString() +
-          ";path=/";
+      .then((res) => {        
         dispatch(verifyEmail(res.data, data.email));
       })
       .catch((error) => {
         if (error.response) {
-          dispatch(verifyEmail(error.response.data.message));
+          if(error.response.status > 200) {
+            dispatch(setError(error.message));
+          }
+          dispatch(setError(error.response.data.message));
         } else {
-          dispatch(verifyEmail(error.message));
+          dispatch(setError(error.message));
         }
       });
   };
@@ -46,9 +42,9 @@ export const verifyCodeAsync = (data) => {
       })
       .catch((error) => {
         if (error.response) {
-          dispatch(verifyCode(error.response.data.message));
+          dispatch(setError(error.response.data.message));
         } else {
-          dispatch(verifyCode(error.message));
+          dispatch(setError(error.message));
         }
       });
   };
@@ -96,6 +92,7 @@ export const userSignUpAsync = (data) => {
     axios
       .post(url, data)
       .then((res) => {
+        console.log("Action: ", res.data);
         dispatch(signUp(res.data));
       })
       .catch((error) => {
@@ -160,6 +157,12 @@ export const checkReferralCode = (data) => {
   };
 };
 
+export const resetReferralCode = () => {
+  return {
+    type: RESET_REFERRAL_CODE,
+  };
+};
+
 export const signUp = (data) => {
   return {
     type: SIGN_UP,
@@ -181,6 +184,7 @@ export const reset = () => {
 };
 
 export const setError = (data) => {
+  console.log(data);
   return {
     type: SET_ERROR,
     data,

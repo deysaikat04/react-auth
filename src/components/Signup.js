@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useHistory, Redirect } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -13,11 +14,16 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Alert from "./Alert";
-import { checkReferralCodeAsync, userSignUpAsync } from "../actions/userAction";
+import {
+  checkReferralCodeAsync,
+  userSignUpAsync,
+  resetReferralCode,
+} from "../actions/userAction";
 import { signUpConstants } from "../actions/constants";
 
-export default function SignUp() {
+const SignUp = (props) => {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const { user } = useSelector((state) => ({
     user: state.user,
@@ -32,11 +38,12 @@ export default function SignUp() {
 
   const [btnEnabled, setBtnEnabled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     user.error || user.msg ? setOpen(true) : setOpen(false);
-    isValidate();
+    user.isValidReferralCode && name && privacyChecked && !formError.name
+      ? setBtnEnabled(true)
+      : setBtnEnabled(false);
   }, [user]);
 
   const handleReferralCodeChange = (e) => {
@@ -52,13 +59,16 @@ export default function SignUp() {
     setReferral(uppercaseChars);
     if (uppercaseChars.length === 6) {
       dispatch(checkReferralCodeAsync(uppercaseChars));
+    } else {
+      dispatch(resetReferralCode());
     }
   };
 
-  const isValidate = (id, value) => {
+  const isValidate = (id, value, regexTest) => {
     if (
       id === "firstName" &&
       value !== "" &&
+      regexTest &&
       privacyChecked &&
       (referral === "" || user.isValidReferralCode)
     ) {
@@ -66,11 +76,9 @@ export default function SignUp() {
     } else if (
       id === "privacyChecked" &&
       value &&
-      name !== "" &&
+      !formError.name &&
       (referral === "" || user.isValidReferralCode)
     ) {
-      setBtnEnabled(true);
-    } else if (user.isValidReferralCode && privacyChecked && name !== "") {
       setBtnEnabled(true);
     } else {
       setBtnEnabled(false);
@@ -79,15 +87,20 @@ export default function SignUp() {
 
   const handleNameChange = (e) => {
     const { id, value } = e.target;
+    const regex = /^[a-z][a-z'-]{2,}$/;
+    const regexTest = regex.test(value);
     setName(value);
     if (value === "") {
       setFormError({ ...formError, name: true });
       setFormErrorMsg({ ...formErrorMsg, name: "This field is required" });
+    } else if (!regexTest) {
+      setFormError({ ...formError, name: true });
+      setFormErrorMsg({ ...formErrorMsg, name: "Please enter characters only." });
     } else {
       setFormError({ ...formError, name: false });
       setFormErrorMsg({ ...formErrorMsg, name: "" });
     }
-    isValidate(id, value);
+    isValidate(id, value, regexTest);
   };
 
   const handlePrivacyChange = (e) => {
@@ -107,7 +120,9 @@ export default function SignUp() {
       source: signUpConstants.APPSOURCE,
     };
     dispatch(userSignUpAsync(payload));
+    history.push("/profile");
   };
+  if (!user.isOtpVerified) return <Redirect to='/' />
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -215,3 +230,5 @@ export default function SignUp() {
     </Container>
   );
 }
+
+export default SignUp;

@@ -3,6 +3,7 @@ import {
   SET_OTP_VERFIED,
   RESEND_OTP,
   CHECK_REFERRAL_CODE,
+  RESET_REFERRAL_CODE,
   SIGN_UP,
   LOG_OUT,
   RESET,
@@ -43,8 +44,12 @@ export default function userReducer(state = initState, action) {
         isLogin: action.data.results ? action.data.results.isLogin : false,
         success: action.data.success,
         msg: action.data.message,
-        resendEmailTokenCount: action.data.messageObj ? action.data.messageObj.resendEmailTokenCount : 0,
-        wrongEmailTokenCount: action.data.messageObj ? action.data.messageObj.wrongEmailTokenCount : 0,
+        resendEmailTokenCount: action.data.messageObj
+          ? action.data.messageObj.resendEmailTokenCount
+          : 0,
+        wrongEmailTokenCount: action.data.messageObj
+          ? action.data.messageObj.wrongEmailTokenCount
+          : 0,
         profile: action.data.results ? action.data.results.user : {},
         authed:
           action.data.success && action.data.results
@@ -74,11 +79,18 @@ export default function userReducer(state = initState, action) {
         msg: action.data.message,
         error: false,
       };
+    case RESET_REFERRAL_CODE:
+      return {
+        ...state,
+        isValidReferralCode: false,
+        msg: "",
+      };
     case SIGN_UP:
+      console.log("R:",action);
       return {
         ...state,
         success: action.data.success,
-        profile: action.results.user,
+        profile: { ...action.data.results.user },
         msg: action.data.message,
         authed: true,
         error: false,
@@ -86,7 +98,7 @@ export default function userReducer(state = initState, action) {
     case SET_ERROR:
       return {
         ...state,
-        msg: action.data.message,
+        msg: action.data,
         isOtpVerified: false,
         error: true,
       };
@@ -103,7 +115,7 @@ export default function userReducer(state = initState, action) {
         ...state,
         ...initState,
         success: action.data.success,
-        msg : action.data.message
+        msg: action.data.message,
       };
     }
 
