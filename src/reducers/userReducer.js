@@ -86,14 +86,13 @@ export default function userReducer(state = initState, action) {
         msg: "",
       };
     case SIGN_UP:
-      console.log("R:",action);
       return {
         ...state,
         success: action.data.success,
-        profile: { ...action.data.results.user },
+        profile: action.data.results ? { ...action.data.results.user } : {},
         msg: action.data.message,
-        authed: true,
-        error: false,
+        authed: action.data.results ? true : false,
+        error: action.data.results ? true : false,
       };
     case SET_ERROR:
       return {
@@ -106,7 +105,7 @@ export default function userReducer(state = initState, action) {
     case RESET: {
       return {
         ...state,
-        ...initState,
+        isOtpVerified: false,        
       };
     }
 

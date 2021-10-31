@@ -48,7 +48,7 @@ const Verify = () => {
       !user.isLogin &&
       user.isOtpVerified &&
       user.msg === otpMessage.SUCCESS
-    ) {
+      ) {
       history.push("/signup");
     }
     setSuccess(user.success);

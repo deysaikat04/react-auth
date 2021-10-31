@@ -92,7 +92,6 @@ export const userSignUpAsync = (data) => {
     axios
       .post(url, data)
       .then((res) => {
-        console.log("Action: ", res.data);
         dispatch(signUp(res.data));
       })
       .catch((error) => {
@@ -184,7 +183,6 @@ export const reset = () => {
 };
 
 export const setError = (data) => {
-  console.log(data);
   return {
     type: SET_ERROR,
     data,

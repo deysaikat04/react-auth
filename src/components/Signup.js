@@ -29,7 +29,7 @@ const SignUp = (props) => {
     user: state.user,
   }));
 
-  const [name, setName] = useState("example");
+  const [name, setName] = useState("");
   const [referral, setReferral] = useState("");
   const [privacyChecked, setPrivacyChecked] = useState(false);
 
@@ -41,7 +41,8 @@ const SignUp = (props) => {
 
   useEffect(() => {
     user.error || user.msg ? setOpen(true) : setOpen(false);
-    user.isValidReferralCode && name && privacyChecked && !formError.name
+    (user.isValidReferralCode && name && privacyChecked && !formError.name) ||
+    (!user.isValidReferralCode && referral === "")
       ? setBtnEnabled(true)
       : setBtnEnabled(false);
   }, [user]);
@@ -52,7 +53,7 @@ const SignUp = (props) => {
     value === "" ? setBtnEnabled(true) : setBtnEnabled(false);
 
     let uppercaseChars = value.replace(/[^A-Z0-9]/g, function (match) {
-      if (match != undefined) {
+      if (match !== undefined) {
         return match.toUpperCase();
       }
     });
@@ -87,7 +88,7 @@ const SignUp = (props) => {
 
   const handleNameChange = (e) => {
     const { id, value } = e.target;
-    const regex = /^[a-z][a-z'-]{2,}$/;
+    const regex = /^[a-zA-Z][a-zA-Z'-]{2,}$/;
     const regexTest = regex.test(value);
     setName(value);
     if (value === "") {
@@ -95,7 +96,10 @@ const SignUp = (props) => {
       setFormErrorMsg({ ...formErrorMsg, name: "This field is required" });
     } else if (!regexTest) {
       setFormError({ ...formError, name: true });
-      setFormErrorMsg({ ...formErrorMsg, name: "Please enter characters only." });
+      setFormErrorMsg({
+        ...formErrorMsg,
+        name: "Please enter characters only (Minimum 2 chars)",
+      });
     } else {
       setFormError({ ...formError, name: false });
       setFormErrorMsg({ ...formErrorMsg, name: "" });
@@ -120,9 +124,11 @@ const SignUp = (props) => {
       source: signUpConstants.APPSOURCE,
     };
     dispatch(userSignUpAsync(payload));
-    history.push("/profile");
+    setTimeout(() => {
+      history.push("/profile");
+    }, 1000);
   };
-  if (!user.isOtpVerified) return <Redirect to='/' />
+  if (!user.isOtpVerified) return <Redirect to="/" />;
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
@@ -229,6 +235,6 @@ const SignUp = (props) => {
       )}
     </Container>
   );
-}
+};
 
 export default SignUp;

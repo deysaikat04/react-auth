@@ -36,7 +36,7 @@ const SignIn = () => {
     user: state.user,
   }));
 
-  const [email, setEmail] = useState("example@gmail.co");
+  const [email, setEmail] = useState("dummy@gmail.co");
   const [formError, setFormError] = useState({ email: false });
   const [formErrorMsg, setFormErrorMsg] = useState({ email: "" });
   const [btnEnabled, setBtnEnabled] = useState(false);
@@ -49,6 +49,7 @@ const SignIn = () => {
 
   useEffect(() => {
     user.error || user.msg ? setOpen(true) : setOpen(false);
+    if (user.authed) history.push("/profile");
   }, [user]);
 
   const handleChange = (e) => {
@@ -80,8 +81,7 @@ const SignIn = () => {
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
-      <Box className={classes.box}
-      >
+      <Box className={classes.box}>
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
           <LockOutlinedIcon />
         </Avatar>
@@ -128,7 +128,7 @@ const SignIn = () => {
       {open && (
         <Alert
           setOpen={setOpen}
-          type={"error"}
+          type={user.success ? "success" : "error"}
           errorMsg={user.msg ? user.msg : "Network error!"}
         />
       )}

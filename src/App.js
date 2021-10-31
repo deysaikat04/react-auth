@@ -1,3 +1,4 @@
+import React, { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -8,8 +9,10 @@ import { useSelector } from "react-redux";
 import Signup from "./components/Signup";
 import Signin from "./components/Signin";
 import Verify from "./components/Verify";
-import Profile from "./components/Profile";
+import LinearProgress from '@mui/material/LinearProgress';
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const Profile = lazy(() => import("./components/Profile"));
 
 const theme = createTheme({
   palette: {
@@ -22,32 +25,30 @@ const theme = createTheme({
   },
 });
 
-const PrivateRoute = ({ component: Component, authed, ...rest }) => {
-  console.log("Pr", authed);
+const PrivateRoute = ({ component: Component, ...rest }) => {
   return (
     <Route
       {...rest}
       render={(props) =>
-        authed === true ? (
-          <Component {...props} authed={authed} />
+        rest.authed === true ? (
+          <Component {...props} authed={rest.authed} />
         ) : (
-          <Redirect to={{ pathname: "/", state: { from: props.location } }} />
+          <Redirect to="/" />
         )
       }
     />
   );
 };
 
-const App = (props) => {
+const App = () => {
   const { user } = useSelector((state) => ({
     user: state.user,
   }));
 
-  const authed = user.authed;
-
   return (
     <ThemeProvider theme={theme}>
       <Router>
+      <Suspense fallback={<LinearProgress />}>
         <Switch>
           <Route exact path="/" render={(props) => <Signin {...props} />} />
           <Route
@@ -60,23 +61,12 @@ const App = (props) => {
             path="/signup"
             render={(props) => <Signup {...props} />}
           />
-          {/* <Route
-            exact
-            path="/profile"
-            render={(props) => <Profile {...props} authed={user.authed} />}
-          /> */}
-          {/* <Route
-            exact
-            path="/profile"
-            render={(props) => <Profile {...props} />}
-          />          */}
           <PrivateRoute
+            component={Profile}
             exact
             path="/profile"
-            authed={authed}
-            component={Profile}
+            authed={user.authed}
           />
-
           <Route
             exact
             path="*"
@@ -87,6 +77,7 @@ const App = (props) => {
             )}
           />
         </Switch>
+        </Suspense>
       </Router>
     </ThemeProvider>
   );

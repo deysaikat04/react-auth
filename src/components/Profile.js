@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Redirect } from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -9,15 +9,12 @@ import Container from "@mui/material/Container";
 import Navbar from "./Navbar";
 
 const Profile = (props) => {
-  const dispatch = useDispatch();
-  const { authed } = props;
 
   const { user } = useSelector((state) => ({
     user: state.user,
   }));
 
-  console.log(authed);
-//   if (!authed) return <Redirect to="/" />;
+  if(!user.authed) return <Redirect to='/' />
 
   return (
     <React.Fragment>
