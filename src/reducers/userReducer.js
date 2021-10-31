@@ -1,4 +1,13 @@
-import { SET_EMAIL, SET_OTP_VERFIED, RESEND_OTP, CHECK_REFERRAL_CODE, SIGN_UP, SET_ERROR } from "../actions/action-types";
+import {
+  SET_EMAIL,
+  SET_OTP_VERFIED,
+  RESEND_OTP,
+  CHECK_REFERRAL_CODE,
+  SIGN_UP,
+  LOG_OUT,
+  RESET,
+  SET_ERROR,
+} from "../actions/action-types";
 
 const initState = {
   isLogin: false,
@@ -8,8 +17,10 @@ const initState = {
   error: false,
   isOtpVerified: false,
   resendEmailTokenCount: 0,
+  wrongEmailTokenCount: 0,
   isValidReferralCode: false,
-  user:{},
+  authed: false,
+  profile: {},
   msg: "",
 };
 
@@ -32,7 +43,15 @@ export default function userReducer(state = initState, action) {
         isLogin: action.data.results ? action.data.results.isLogin : false,
         success: action.data.success,
         msg: action.data.message,
-        resendEmailTokenCount: action.data.resendEmailTokenCount,
+        resendEmailTokenCount: action.data.messageObj ? action.data.messageObj.resendEmailTokenCount : 0,
+        wrongEmailTokenCount: action.data.messageObj ? action.data.messageObj.wrongEmailTokenCount : 0,
+        profile: action.data.results ? action.data.results.user : {},
+        authed:
+          action.data.success && action.data.results
+            ? action.data.results.user
+              ? true
+              : false
+            : false,
         isOtpVerified: true,
         error: false,
       };
@@ -41,7 +60,9 @@ export default function userReducer(state = initState, action) {
         ...state,
         success: action.data.success,
         msg: action.data.message,
-        resendEmailTokenCount: action.data.results ? action.data.results.resendEmailTokenCount : 0,
+        resendEmailTokenCount: action.data.results
+          ? action.data.results.resendEmailTokenCount
+          : state.resendEmailTokenCount + 1,
         isOtpVerified: true,
         error: false,
       };
@@ -57,8 +78,9 @@ export default function userReducer(state = initState, action) {
       return {
         ...state,
         success: action.data.success,
-        user: action.results.user,
+        profile: action.results.user,
         msg: action.data.message,
+        authed: true,
         error: false,
       };
     case SET_ERROR:
@@ -68,6 +90,22 @@ export default function userReducer(state = initState, action) {
         isOtpVerified: false,
         error: true,
       };
+
+    case RESET: {
+      return {
+        ...state,
+        ...initState,
+      };
+    }
+
+    case LOG_OUT: {
+      return {
+        ...state,
+        ...initState,
+        success: action.data.success,
+        msg : action.data.message
+      };
+    }
 
     default:
       return {

@@ -30,18 +30,28 @@ const Verify = () => {
   }));
 
   useEffect(() => {
-    if (user.resendEmailTokenCount === 3) {
-      setTimeout(() => history.push("/"), 2000);
+    // if(!user.hasEmail) history.push("/");
+    if (user.resendEmailTokenCount > 3 || user.wrongEmailTokenCount === 3) {
+      setTimeout(() => history.push("/"), 4000);
     }
     user.error || user.msg ? setOpen(true) : setOpen(false);
 
-    if (user.success && user.isLogin && user.isOtpVerified && user.msg === otpMessage.SUCCESS) {
+    if (
+      user.success &&
+      user.isLogin &&
+      user.isOtpVerified &&
+      user.msg === otpMessage.SUCCESS
+    ) {
       history.push("/profile");
     }
-    if (user.success && !user.isLogin && user.isOtpVerified && user.msg === otpMessage.SUCCESS) {
+    if (
+      user.success &&
+      !user.isLogin &&
+      user.isOtpVerified &&
+      user.msg === otpMessage.SUCCESS
+    ) {
       history.push("/signup");
     }
-
     setSuccess(user.success);
   }, [user]);
 
@@ -101,7 +111,7 @@ const Verify = () => {
           <Typography component="p" variant="body2" sx={{ mb: 3 }}>
             Please enter the OTP sent to your email.
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={12} md={12}>
               <TextField
                 autoFocus

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,18 +13,29 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Alert from "./Alert";
 import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
-import Cookies from "js-cookie";
-import { verifyEmailAsync } from "../actions/userAction";
+import { verifyEmailAsync, reset } from "../actions/userAction";
+
+const useStyles = makeStyles((theme) => ({
+  box: {
+    boxShadow: "rgb(0 0 0 / 10%) 0px 0px 10px",
+    padding: theme.spacing(6),
+    marginTop: theme.spacing(8),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    background: "#ffffff",
+  },
+}));
 
 const SignIn = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  
+  const classes = useStyles();
+
   const { user } = useSelector((state) => ({
     user: state.user,
   }));
-  
+
   const [email, setEmail] = useState("example@gmail.co");
   const [formError, setFormError] = useState({ email: false });
   const [formErrorMsg, setFormErrorMsg] = useState({ email: "" });
@@ -31,16 +43,18 @@ const SignIn = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    dispatch(reset());
+  }, []);
 
   useEffect(() => {
     user.error || user.msg ? setOpen(true) : setOpen(false);
-    
   }, [user]);
 
   const handleChange = (e) => {
     const { value } = e.target;
     let regex = /^\w+([+\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/;
-    setEmail(value);   
+    setEmail(value);
 
     if (regex.test(value)) {
       setFormError({ ...formError, email: false });
@@ -56,7 +70,7 @@ const SignIn = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     let payload = {
-      email
+      email,
     };
     setLoading(true);
     dispatch(verifyEmailAsync(payload));
@@ -66,15 +80,7 @@ const SignIn = () => {
   return (
     <Container component="main" maxWidth="sm">
       <CssBaseline />
-      <Box
-        sx={{
-          boxShadow: "rgb(0 0 0 / 10%) 0px 0px 10px",
-          padding: 6,
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
+      <Box className={classes.box}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
           <LockOutlinedIcon />

@@ -5,11 +5,13 @@ import {
   RESEND_OTP,
   CHECK_REFERRAL_CODE,
   SIGN_UP,
+  LOG_OUT,
+  RESET,
   SET_ERROR,
 } from "./action-types";
 
-export const verifyEmailAsync = (data) => {  
-  let url = `${process.env.REACT_APP_BASE_URL}/users/email`;  
+export const verifyEmailAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users/email`;
   return (dispatch) => {
     axios
       .post(url, data)
@@ -17,7 +19,11 @@ export const verifyEmailAsync = (data) => {
         let d = new Date();
         d.setTime(d.getTime() + 2 * 24 * 60 * 60 * 1000);
         document.cookie =
-          "token=" + res.data.results.token + ";expires=" + d.toUTCString() + ";path=/";
+          "token=" +
+          res.data.results.token +
+          ";expires=" +
+          d.toUTCString() +
+          ";path=/";
         dispatch(verifyEmail(res.data, data.email));
       })
       .catch((error) => {
@@ -30,12 +36,12 @@ export const verifyEmailAsync = (data) => {
   };
 };
 
-export const verifyCodeAsync = (data) => {  
-  let url = `${process.env.REACT_APP_BASE_URL}/users/email/verify`;  
+export const verifyCodeAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users/email/verify`;
   return (dispatch) => {
     axios
       .put(url, data)
-      .then((res) => {        
+      .then((res) => {
         dispatch(verifyCode(res.data, data.email));
       })
       .catch((error) => {
@@ -48,12 +54,12 @@ export const verifyCodeAsync = (data) => {
   };
 };
 
-export const resendCodeAsync = (data) => {  
-  let url = `${process.env.REACT_APP_BASE_URL}/users/token/resendtoken`;  
+export const resendCodeAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users/token/resendtoken`;
   return (dispatch) => {
     axios
       .put(url, data)
-      .then((res) => {        
+      .then((res) => {
         dispatch(verifyResendCode(res.data));
       })
       .catch((error) => {
@@ -66,12 +72,12 @@ export const resendCodeAsync = (data) => {
   };
 };
 
-export const checkReferralCodeAsync = (data) => {  
-  let url = `${process.env.REACT_APP_BASE_URL}/users/referral/${data}`;  
+export const checkReferralCodeAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users/referral/${data}`;
   return (dispatch) => {
     axios
       .get(url)
-      .then((res) => {        
+      .then((res) => {
         dispatch(checkReferralCode(res.data));
       })
       .catch((error) => {
@@ -84,13 +90,36 @@ export const checkReferralCodeAsync = (data) => {
   };
 };
 
-export const userSignUpAsync = (data) => {  
-  let url = `${process.env.REACT_APP_BASE_URL}/users`;  
+export const userSignUpAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users`;
   return (dispatch) => {
     axios
       .post(url, data)
-      .then((res) => {        
+      .then((res) => {
         dispatch(signUp(res.data));
+      })
+      .catch((error) => {
+        if (error.response) {
+          dispatch(setError(error.response.data.message));
+        } else {
+          dispatch(setError(error.message));
+        }
+      });
+  };
+};
+
+export const userLogOutAsync = (data) => {
+  let url = `${process.env.REACT_APP_BASE_URL}/users/logout/${data.userId}`;
+  const config = {
+    headers: {
+      Authorization: `Bearer ${data.userId},${data.userToken}`,
+    },
+  };
+  return (dispatch) => {
+    axios
+      .post(url, data, config)
+      .then((res) => {
+        dispatch(logOut(res.data));
       })
       .catch((error) => {
         if (error.response) {
@@ -106,41 +135,54 @@ export const verifyEmail = (data, email) => {
   return {
     type: SET_EMAIL,
     data,
-    email
+    email,
   };
 };
 
 export const verifyCode = (data) => {
   return {
     type: SET_OTP_VERFIED,
-    data
+    data,
   };
 };
 
 export const verifyResendCode = (data) => {
   return {
     type: RESEND_OTP,
-    data
+    data,
   };
 };
 
 export const checkReferralCode = (data) => {
   return {
     type: CHECK_REFERRAL_CODE,
-    data
+    data,
   };
 };
 
 export const signUp = (data) => {
   return {
     type: SIGN_UP,
-    data
+    data,
+  };
+};
+
+export const logOut = (data) => {
+  return {
+    type: LOG_OUT,
+    data,
+  };
+};
+
+export const reset = () => {
+  return {
+    type: RESET,
   };
 };
 
 export const setError = (data) => {
   return {
     type: SET_ERROR,
-    data
+    data,
   };
 };

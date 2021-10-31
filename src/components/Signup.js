@@ -103,7 +103,7 @@ export default function SignUp() {
       email: user.email,
       referredCodeKey: referral,
       agreeToPrivacyPolicy: privacyChecked,
-      token: user.token,
+      token: user.token.toString(),
       source: signUpConstants.APPSOURCE,
     };
     dispatch(userSignUpAsync(payload));
