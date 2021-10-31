@@ -36,6 +36,8 @@ export default function userReducer(state = initState, action) {
         token: action.data.results.token,
         success: action.data.success,
         error: false,
+        resendEmailTokenCount: 0,
+        wrongEmailTokenCount: 0,
         msg: action.data.message,
       };
     case SET_OTP_VERFIED:
@@ -105,7 +107,9 @@ export default function userReducer(state = initState, action) {
     case RESET: {
       return {
         ...state,
-        isOtpVerified: false,        
+        isOtpVerified: false,
+        resendEmailTokenCount: 0,
+        wrongEmailTokenCount: 0,
       };
     }
 

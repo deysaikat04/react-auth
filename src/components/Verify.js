@@ -13,7 +13,7 @@ import Container from "@mui/material/Container";
 import Alert from "./Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { otpMessage } from "../actions/constants";
-import { verifyCodeAsync, resendCodeAsync } from "../actions/userAction";
+import { verifyCodeAsync, resendCodeAsync, reset } from "../actions/userAction";
 
 const Verify = () => {
   const dispatch = useDispatch();
@@ -30,7 +30,8 @@ const Verify = () => {
   }));
 
   useEffect(() => {
-    if (user.resendEmailTokenCount > 3 || user.wrongEmailTokenCount === 3) {
+    if (user.resendEmailTokenCount === 3 || user.wrongEmailTokenCount === 3) {
+      dispatch(reset());
       setTimeout(() => history.push("/"), 4000);
     }
     user.error || user.msg ? setOpen(true) : setOpen(false);
@@ -48,7 +49,7 @@ const Verify = () => {
       !user.isLogin &&
       user.isOtpVerified &&
       user.msg === otpMessage.SUCCESS
-      ) {
+    ) {
       history.push("/signup");
     }
     setSuccess(user.success);
