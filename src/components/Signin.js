@@ -36,7 +36,7 @@ const SignIn = () => {
     user: state.user,
   }));
 
-  const [email, setEmail] = useState("dummy@gmail.co");
+  const [email, setEmail] = useState("");
   const [formError, setFormError] = useState({ email: false });
   const [formErrorMsg, setFormErrorMsg] = useState({ email: "" });
   const [btnEnabled, setBtnEnabled] = useState(false);

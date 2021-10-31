@@ -63,7 +63,6 @@ const Navbar = () => {
             </Typography>
           )}
           <Button
-            href="#"
             color="secondary"
             variant="outlined"
             sx={{ my: 1, mx: 1.5 }}
